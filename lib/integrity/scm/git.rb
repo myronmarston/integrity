@@ -40,6 +40,7 @@ module Integrity
           clone unless cloned?
           checkout unless on_branch?
           pull
+          submodule_update
         end
     
         def clone
@@ -61,6 +62,13 @@ module Integrity
         def pull
           log "Pull-ing in #{working_directory}"
           `cd #{working_directory} && git pull &>/dev/null`
+        end
+
+        def submodule_update
+          if File.exists?(File.join(working_directory, '.gitmodules'))
+            log "Updating submodules in #{working_directory}"
+            `cd #{working_directory} && git submodule init && git submodule update &>/dev/null`
+          end
         end
 
         def local_branches
