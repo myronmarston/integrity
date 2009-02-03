@@ -12,7 +12,11 @@ module Integrity
 
     def build(commit)
       Integrity.log "Building #{commit} (#{@branch}) of #{@build.project.name} in #{export_directory} using #{scm_name}"
-      @scm.with_revision(commit) { run_build_script }
+      @scm.with_revision(commit) do
+         Integrity.config[:before_build_callback].call(export_directory) if Integrity.config[:before_build_callback]
+         run_build_script
+      end
+      
       @build
     ensure
       @build.commit_identifier = @scm.commit_identifier(commit)
