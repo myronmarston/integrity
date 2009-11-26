@@ -38,11 +38,10 @@ task :build_new_commits do
   Integrity::Project.all.each do |project|
     # Don't build if project is just being set up, or a build of 'HEAD' is already outstanding or the latest commit has already
     # been built.
-    latest_commit_reference = "refs/heads/#{project.branch}"
     unless project.blank? ||
         project.last_build.commit.identifier == 'HEAD' ||
-        `git ls-remote #{project.uri}`.include?("#{project.last_build.commit.identifier}\t#{latest_commit_reference}")
-      project.build("HEAD")
+        (head = Bob::Builder.new(project).send(:scm).head) == project.last_build.commit.identifier
+      project.build(head)
     end
   end
 end
